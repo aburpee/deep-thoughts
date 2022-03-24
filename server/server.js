@@ -1,8 +1,30 @@
 const express = require('express');
+const { ApolloServer } = require('apollo-server-express');
+
+const { typeDefs, resolvers } = require('./schemas');
 const db = require('./config/connection');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+
+const startServer = async () => {
+  //creates new apollo server and pass schema data
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers
+  });
+
+  //start apollo server
+  await server.start()
+
+  //integrate apollo server with express app as middleware
+  server.applyMiddleware({ app });
+
+  //log where we can go to test our GQL api
+  console.log(`Use graphql at http://localhost:${PORT}${server.graphqlPath}`);
+};
+
+startServer();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
